@@ -1,0 +1,21 @@
+AnalysisException: [UNRESOLVED_COLUMN.WITH_SUGGESTION] A column or function parameter with name `created_at` cannot be resolved. Did you mean one of the following? [`name`, `id`, `owners`, `users`, `picture_url`].; line 2 pos 11;
+'Project [unresolvedalias('max('created_at), None)]
++- SubqueryAlias spark_catalog.db.table_name
+   +- Relation spark_catalog.db.table_name[id#28,name#29,picture_url#30,owners#31,users#32,dp_create_timestamp#33,dp_update_timestamp#34] parquet
+'Project [unresolvedalias('max('created_at), None)]
++- SubqueryAlias spark_catalog.db.table_name
+   +- Relation spark_catalog.db.table_name[id#28,name#29,picture_url#30,owners#31,users#32,dp_create_timestamp#33,dp_update_timestamp#34] parquet
+
+	at org.apache.spark.sql.errors.QueryCompilationErrors$.unresolvedAttributeError(QueryCompilationErrors.scala:318)
+	at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.org$apache$spark$sql$catalyst$analysis$CheckAnalysis$$failUnresolvedAttribute(CheckAnalysis.scala:156)
+	at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis0$7(CheckAnalysis.scala:309)
+	at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis0$7$adapted(CheckAnalysis.scala:294)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.foreachUp(TreeNode.scala:248)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$foreachUp$1(TreeNode.scala:247)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$foreachUp$1$adapted(TreeNode.scala:247)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.foreachUp(TreeNode.scala:247)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$foreachUp$1(TreeNode.scala:247)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$foreachUp$1$adapted(TreeNode.scala:247)
