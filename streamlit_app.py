@@ -33,6 +33,9 @@ def get_llm_message_response_content(response):
 
 # LLM action Function to handle additional context retrieval
 def retrieve_additional_context_action(prompt):
+    ### TODO 1: just stub, this should gather context datafactory version, configuration, all source code class names and pathes
+    ### arguments of the application(path to the config file, config file itself should also be loaded) + main class path
+    ### ask_llm + handle_llm_response(llm_response)
     additional_question = st.text_input("Please provide more context or clarify your question:")
     if additional_question:
         updated_prompt = f"{prompt}\n\n---\n\n{additional_question}"
