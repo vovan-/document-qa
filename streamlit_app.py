@@ -3,67 +3,91 @@ from openai import OpenAI
 import openai
 import json
 
-# Reads file in the source folder from a path specified
+# Function to read content from a file in the source code
 def read_file(file_path):
-    """Reads content from a file."""
-    with open(file_path, 'r') as file:
-        return file.read()
+    try:
+        with open(file_path, 'r') as file:
+            return file.read()
+    except FileNotFoundError:
+        st.error(f"File not found: {file_path}")
+        return None
 
-# Retrieves the prompt that initially classifies the error
-def getClassifyErrorPrompt():
+# Function to get the initial prompt for classifying the error
+def get_classify_error_prompt():
     return read_file('demo_error_1.txt')
 
-# Retrieves the error itself - message with a stacktrace
-def getDataErrorDetails():
+# Function to get the error details
+def get_data_error_details():
     return read_file('init_prompt.txt')
 
+# Function to make a query to LLM
+def ask_llm(messages): 
+    return client.chat.completions.create(
+            model="gpt-4",
+            messages=messages
+        )
 
-# Action that retrieves additional context
-def retrieveAdditionalContextAction(result):
+# Function to fetch LLM response message content
+def get_llm_message_response_content(response):
+    return response.choices[0].message.content
+
+# LLM action Function to handle additional context retrieval
+def retrieve_additional_context_action(prompt):
     additional_question = st.text_input("Please provide more context or clarify your question:")
     if additional_question:
         updated_prompt = f"{prompt}\n\n---\n\n{additional_question}"
-        updated_response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "user", "content": updated_prompt}
-            ]
-        )
-        updated_result = updated_response.choices[0].message.content
+        updated_response = ask_llm([{"role": "user", "content": updated_prompt}])
+        updated_result = get_llm_message_response_content(updated_response)
         st.write(updated_result)
 
-# Acts based on the json formatted response from LLM
-def handleLlmResponse(result):
-        try:
-            parsed_result = json.loads(result)
-            issue_level = parsed_result.get("issueLevel")
-            suggested_action = parsed_result.get("suggestedAction")
+# Function to handle the response from the language model
+def handle_llm_response(llm_response):
+    try:
+        parsed_result = json.loads(llm_response)
+        issue_level = parsed_result.get("issueLevel")
+        st.write(f"Issue level detected is {issue_level}")
+        suggested_action = parsed_result.get("suggestedAction")
 
-            if suggested_action == "request_additional_context":
-                retrieveAdditionalContextAction(result)
-            else:
-                st.error("The action " + suggested_action + " is not yet registered.")
-        except json.JSONDecodeError:
-            st.error("Failed to parse the response as JSON.")
+        # Define supported action handlers
+        action_handlers = {
+            "request_additional_context": lambda: retrieve_additional_context_action(llm_response),
+            # Add more actions here
+        }
+
+        # Execute the appropriate action based on the suggested action
+        handler = action_handlers.get(suggested_action, lambda: st.error(f"The action {suggested_action} is not yet registered."))
+        handler()
+    except json.JSONDecodeError:
+        st.error("Failed to parse the response as JSON.")
 
 ### Main application
 
-# Show title and description.
-st.title("📄 Data pipeline assistant")
+st.title("📄 Data Pipeline Assistant")
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
+# Request the OpenAI API key
 openai_api_key = st.text_input("OpenAI API Key", type="password")
 if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
 else:
+    # Create an OpenAI client
+    #client = OpenAI(api_key=openai_api_key)
+    client = openai.AzureOpenAI(api_key=openai_api_key, api_version="2024-08-01-preview", azure_endpoint=st.secrets.aoai.endpoint_full)
+    prompt = get_classify_error_prompt()
+    error_contents = get_data_error_details()
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
-    #client = openai.AzureOpenAI(api_key=openai_api_key, api_version="2024-08-01-preview", azure_endpoint=st.secrets.aoai.endpoint_full)
+    if error_contents and prompt:
+        messages = [
+            {"role": "user", "content": f"{error_contents} \n\n---\n\n {prompt}"}
+        ]
+        response = ask_llm(messages)
 
-    # Let the user upload a file via `st.file_uploader`.
+        result = get_llm_message_response_content(response)
+        st.write(result)
+        handle_llm_response(result)
+
+
+### Examples for future use:
+   # Let the user upload a file via `st.file_uploader`.
     # uploaded_file = st.file_uploader(
     #     "Upload a document (.txt or .md)", type=("txt", "md")
     # )
@@ -74,24 +98,3 @@ else:
     #     placeholder="Can you give me a short summary?",
     #     disabled=not uploaded_file,
     # )
-
-    prompt = getClassifyErrorPrompt()
-    error_contents = getDataErrorDetails()
-    if error_contents and prompt:
-        messages = [
-            {
-                "role": "user",
-                "content": f"{error_contents} \n\n---\n\n {prompt}",
-            }
-        ]
-
-        # Generate an answer using the OpenAI API.
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=messages,
-            stream=False,
-        )
-
-        result = response.choices[0].message.content
-        st.write(result)
-        handleLlmResponse(result)
