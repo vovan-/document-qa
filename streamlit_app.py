@@ -3,6 +3,36 @@ from openai import OpenAI
 import openai
 import json
 
+# Reads file in the source folder from a path specified
+def read_file(file_path):
+    """Reads content from a file."""
+    with open(file_path, 'r') as file:
+        return file.read()
+
+# Retrieves the prompt that initially classifies the error
+def getClassifyErrorPrompt():
+    return read_file('demo_error_1.txt')
+
+# Retrieves the error itself - message with a stacktrace
+def getDataErrorDetails():
+    return read_file('init_prompt.txt')
+
+
+# Action that retrieves additional context
+def retrieveAdditionalContextAction(result):
+    additional_question = st.text_input("Please provide more context or clarify your question:")
+    if additional_question:
+        updated_prompt = f"{prompt}\n\n---\n\n{additional_question}"
+        updated_response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "user", "content": updated_prompt}
+            ]
+        )
+        updated_result = updated_response.choices[0].message.content
+        st.write(updated_result)
+
+# Acts based on the json formatted response from LLM
 def handleLlmResponse(result):
         try:
             parsed_result = json.loads(result)
@@ -10,19 +40,13 @@ def handleLlmResponse(result):
             suggested_action = parsed_result.get("suggestedAction")
 
             if suggested_action == "request_additional_context":
-                additional_question = st.text_input("Please provide more context or clarify your question:")
-                if additional_question:
-                    updated_prompt = f"{prompt}\n\n---\n\n{additional_question}"
-                    updated_response = client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[
-                            {"role": "user", "content": updated_prompt}
-                        ]
-                    )
-                    updated_result = updated_response.choices[0].message.content
-                    st.write(updated_result)
+                retrieveAdditionalContextAction(result)
+            else:
+                st.error("The action " + suggested_action + " is not yet registered.")
         except json.JSONDecodeError:
             st.error("Failed to parse the response as JSON.")
+
+### Main application
 
 # Show title and description.
 st.title("📄 Data pipeline assistant")
@@ -37,7 +61,7 @@ else:
 
     # Create an OpenAI client.
     client = OpenAI(api_key=openai_api_key)
-    # client = openai.AzureOpenAI(api_key=openai_api_key, api_version="2024-08-01-preview", azure_endpoint=st.secrets.aoai.endpoint_full)
+    #client = openai.AzureOpenAI(api_key=openai_api_key, api_version="2024-08-01-preview", azure_endpoint=st.secrets.aoai.endpoint_full)
 
     # Let the user upload a file via `st.file_uploader`.
     # uploaded_file = st.file_uploader(
@@ -51,15 +75,8 @@ else:
     #     disabled=not uploaded_file,
     # )
 
-    with open('demo_error_1.txt', 'r') as file:
-        file_contents = file.read()
-
-    prompt = file_contents
-    
-    with open('init_prompt.txt', 'r') as file:
-        file_contents = file.read()
-
-    error_contents = file_contents
+    prompt = getClassifyErrorPrompt()
+    error_contents = getDataErrorDetails()
     if error_contents and prompt:
         messages = [
             {
@@ -74,7 +91,6 @@ else:
             messages=messages,
             stream=False,
         )
-
 
         result = response.choices[0].message.content
         st.write(result)
