@@ -16,7 +16,7 @@ def read_file(file_path):
 def get_classify_error_prompt():
     return read_file('prompts/classify_error_prompt.txt')
 
-# Function to get the initial prompt for classifying the error
+# Function to get the initial prompt for creation of ticket based on the error
 def get_prepare_ticket_for_error_prompt():
     return read_file('prompts/create_ticket_prompt.txt')
 
