@@ -33,7 +33,7 @@ def get_llm_message_response_content(response):
 
 # LLM action Function to handle additional context retrieval
 def retrieve_additional_context_action(prompt):
-    ### TODO 1: just stub, this should gather context datafactory version, configuration, all source code class names and pathes
+    ### TODO 1: Viacheslav: just stub, this should gather context datafactory version, configuration, all source code class names and pathes
     ### arguments of the application(path to the config file, config file itself should also be loaded) + main class path
     ### ask_llm + handle_llm_response(llm_response)
     additional_question = st.text_input("Please provide more context or clarify your question:")
@@ -43,10 +43,10 @@ def retrieve_additional_context_action(prompt):
         updated_result = get_llm_message_response_content(updated_response)
         st.write(updated_result)
 
-### TODO 2: Action to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
-### TODO 3: fix json parsing for git diff issues in LLM response
-### TODO 4: action for the user interaction when LLM provided git diff, we should request user review and approval or rejection
-
+### TODO 2: Uladzimir: Action to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
+### TODO 3: Viacheslav: fix json parsing for git diff issues in LLM response
+### TODO 4: Uladzimir: action for the user interaction when LLM provided git diff, we should request user review and approval or rejection
+### TODO 5: Stanislau: find configuration parser code
 
 # Function to handle the response from the language model
 def handle_llm_response(llm_response):
