@@ -1,0 +1,19 @@
+jobName: "Demo_1"
+app:
+  resourcePath: "demo_project/demo_1_sql"
+  options:
+    - key: hdpDb
+      value: "db"
+    - key: tableName
+      value: "table"
+table:
+  db: "db"
+  name: "table"
+  createSqlFile: "create.hql"
+  inputDataSchemaFile: "data.schema"
+  preprocessSqlFile: "preprocess.hql"
+  foreachBatchSqlFile: "update.hql"
+  saveMode: "update"
+  primaryKeys: "id"
+  updateDateColumn: "dp_update_timestamp"
+  dbfsPath: "dbfs:/FileStore/db.DB/table"	
