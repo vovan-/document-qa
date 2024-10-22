@@ -43,9 +43,9 @@ def retrieve_additional_context_action(prompt):
         updated_result = get_llm_message_response_content(updated_response)
         st.write(updated_result)
 
-### TODO Action to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
-### TODO fix json parsing for git diff issues in LLM response
-### TODO action for the user interaction when LLM provided git diff, we should request user review and approval or rejection
+### TODO 2: Action to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
+### TODO 3: fix json parsing for git diff issues in LLM response
+### TODO 4: action for the user interaction when LLM provided git diff, we should request user review and approval or rejection
 
 
 # Function to handle the response from the language model
