@@ -50,8 +50,9 @@ def retrieve_additional_context_action(initial_messages, initial_response):
         st.write(updated_result)
         handle_llm_response(updated_messages, updated_result)
 
+# LLM action function to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
 def rise_incident_action(initial_messages, initial_prompt):
-### TODO 2: Uladzimir: Action to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
+### IMPLEMENTED TODO 2: Uladzimir: Action to create jira ticket(LLM should provide us a text that needs to be used in jira ticket, title, text, priority, story points etc.)
     prompt = get_prepare_ticket_for_error_prompt()
     error_contents = get_data_error_details()
 
@@ -59,6 +60,8 @@ def rise_incident_action(initial_messages, initial_prompt):
         messages = [
             {"role": "user", "content": f"{error_contents} \n\n---\n\n {prompt}"}
         ]
+
+        ### Team question: do we need to include context here for the jira ticket?
         response = ask_llm(messages)
 
         result = get_llm_message_response_content(response)
