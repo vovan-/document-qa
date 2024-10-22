@@ -2,6 +2,8 @@ import streamlit as st
 from openai import OpenAI
 import openai
 import json
+from utils.fix_json import fix_json
+from utils.get_assets import get_assets
 
 # Function to read content from a file in the source code
 def read_file(file_path):
@@ -28,7 +30,9 @@ def get_data_error_details():
 def ask_llm(messages): 
     return client.chat.completions.create(
             model="gpt-4",
-            messages=messages
+            messages=messages,
+            temperature=0,
+            seed=42
         )
 
 # Function to fetch LLM response message content
@@ -37,14 +41,10 @@ def get_llm_message_response_content(response):
 
 # LLM action Function to handle additional context retrieval
 def retrieve_additional_context_action(initial_messages, initial_response):
-    ### TODO 1: Viacheslav: just stub, this should gather context datafactory version, configuration, all source code class names and pathes
-    ### arguments of the application(path to the config file, config file itself should also be loaded) + main class path
-    ### ask_llm + handle_llm_response(llm_response)
-    additional_question = st.text_input("Please provide more context or clarify your question:", key=initial_messages[0])
-    if additional_question:
-        updated_prompt = f"{initial_messages[0]}\n\n---\n\n{additional_question}"
+    additional_information = get_assets()
+    if additional_information:
+        updated_prompt = f"{initial_messages[0]}\n\n---\n\n{additional_information}"
         updated_messages = [{"role": "user", "content": updated_prompt}]
-        # debug: st.write(f"udpdated prompt{updated_messages}")
         updated_response = ask_llm([{"role": "user", "content": updated_prompt}])
         updated_result = get_llm_message_response_content(updated_response)
         st.write(updated_result)
@@ -74,6 +74,7 @@ def rise_incident_action(initial_messages, initial_prompt):
 # Function to handle the response from the language model
 def handle_llm_response(initial_messages, llm_response):
     try:
+        llm_response = fix_json(llm_response)
         parsed_result = json.loads(llm_response)
         issue_level = parsed_result.get("issueLevel")
         st.write(f"Issue level detected is {issue_level}")
