@@ -4,15 +4,7 @@ import openai
 import json
 from utils.fix_json import fix_json
 from utils.get_assets import get_assets
-
-# Function to read content from a file in the source code
-def read_file(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            return file.read()
-    except FileNotFoundError:
-        st.error(f"File not found: {file_path}")
-        return None
+from utils.file_utils import read_file
 
 # Function to get the initial prompt for classifying the error
 def get_classify_error_prompt():
