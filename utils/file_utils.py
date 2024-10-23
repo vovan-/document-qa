@@ -1,3 +1,5 @@
+import streamlit as st
+
 # Function to read content from a file in the source code
 def read_file(file_path):
     try:

@@ -3,6 +3,7 @@ from openai import OpenAI
 import openai
 import json
 import random
+import time
 from utils.fix_json import fix_json
 from utils.get_assets import get_assets
 from utils.file_utils import read_file
@@ -63,29 +64,34 @@ def rise_incident_action(initial_messages, initial_response):
 # LLM action function to propose code change for a developer review
 def fix_code_action(initial_messages, initial_response):
 ### TODO 4: Uladzimir: action for the user interaction when LLM provided git diff, we should request user review and approval or rejection
+## TODO switch to session state
     # Ask the user if he approves the modification
     user_input_key=f"fix_code_action-{random.randint(1,100)}"
-    user_answer = st.text_area(
-        "Please review the changes proposed to fix the issues. Do you approve this (Yes/No)?",
-        placeholder="Can you give me an approval?",
-        key=user_input_key
-    )
-    if (user_answer):
-        # Normalize the input to lower case for case-insensitive comparison
-        normalized_answer = user_answer.strip().lower()
+    user_answer = any
+    user_answer = st.text_input(
+        "Please review the changes proposed to fix the issues. Do you approve this Yes/No?",
+        key=user_input_key)
+    while not user_answer:
+        time.sleep(2.5)
+        st.write("DEBUG: No answer")
+    # Normalize the input to lower case for case-insensitive comparison
+    normalized_answer = user_answer.strip().lower()
 
-        if normalized_answer not in ['yes', 'no']:
-            st.write("Reply with Yes or No please")
-            fix_code_action(initial_messages, initial_response)
-        else:
-            # Return True if the answer is 'yes', False otherwise (i.e., 'no')
-            approval = normalized_answer == 'yes'
-            if approval:
-                st.write("Applying code change to git")
-                ## todo change application logic to apply code
-            else:
-                st.write("Code change not applied")
-        ## todo think what we should do in such case
+    st.write(f"DEBUG: normalized_answer: {normalized_answer}")
+    if normalized_answer not in ['yes', 'no']:
+        st.write("Reply with Yes or No please")
+        fix_code_action(initial_messages, initial_response)
+    else:
+        approved = normalized_answer == 'yes'
+        declined = normalized_answer == 'no'
+        if approved:
+            st.write("Applying code change to git")
+            ## todo change application logic to apply code
+        if declined:
+            st.write("Code change not applied")
+            ## todo think what we should do in such case
+    
+    st.write("DEBUG: exited fix_code_action")
 
 ### TODO 3: Viacheslav: fix json parsing for git diff issues in LLM response
 
@@ -138,6 +144,7 @@ else:
         result = get_llm_message_response_content(response)
         st.write(result)
         handle_llm_response(messages, result)
+        st.write("Execution finished")
 
 
 ### Examples for future use:
