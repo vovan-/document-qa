@@ -30,3 +30,9 @@ A simple Streamlit app that answers questions about an uploaded document via Ope
    ```
    $ streamlit run streamlit_app.py
    ```
+
+### Set Up LangSmith
+   ```
+   $ export LANGCHAIN_TRACING=true
+   $ export LANGSMITH_API_KEY="your_langsmith_api_key"
+   ```
