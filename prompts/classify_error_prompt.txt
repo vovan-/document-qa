@@ -36,7 +36,8 @@ Respond in the following format, before replying check that JSON is valid and fi
     "suggestedCodeChanges": [
         {
             "sourceFile": "/src/abc/MyErrorneousFile.scala",
-            "gitDiff": "HERE PLACE EXACT CHANGES THAT NEEDS TO BE MADE IN THE FILE ABOVE TO FIX THE PROBLEM, USE GIT DIFF FORMAT"
+            "gitDiff": "HERE PLACE EXACT CHANGES THAT NEEDS TO BE MADE IN THE FILE ABOVE TO FIX THE PROBLEM, USE GIT DIFF FORMAT",
+            "sourceUpdate": "HERE PLEASE PLACE SUGGESTED FIXED VERSION OF THE FILE AS A STRING"
         },
     ]
 }
