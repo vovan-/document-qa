@@ -1,6 +1,4 @@
 import requests
-import random
-import json
 
 class GitHubPRCreator:
     def __init__(self, github_token, owner, repo, base_branch, new_branch, changes):
@@ -37,7 +35,8 @@ class GitHubPRCreator:
         changes = self.changes["suggestedCodeChanges"]
         # print(changes)
         for update in changes:
-            tree.append({"path": update["sourceFile"], "mode": "100644", "type": "blob", "content": update["sourceUpdate"]})
+            tree.append({"path": str(update["sourceFile"]).replace('\\', '/'), "mode": "100644", "type": "blob",
+                         "content": update["sourceUpdate"]})
 
         branch_latest_sha = self.create_branch(main_latest_sha)
 
@@ -97,22 +96,3 @@ class GitHubPRCreator:
             return result
         except requests.exceptions.HTTPError as err:
             print(f"Error: {err}")
-
-
-# Usage
-# json_data = {
-#     "issueLevel": "Spark_Job_or_ETL_script_issue",
-#     "suggestedAction": "fix_code",
-#     "suggestedCodeChanges": [
-#         {
-#             "sourceFile": "demo_project/demo_1_sql/preprocess.hql",
-#             "gitDiff": "- create_at,\n+ created_at,",
-#             "sourceUpdate": 'select\n  id,\n  name,\n  created_at,\n  picture_url,\n  owners,\n  users,\n  CURRENT_TIMESTAMP AS dp_create_timestamp,\n  CURRENT_TIMESTAMP AS dp_update_timestamp\nFROM\n  ${extractedData}'
-#         }
-#     ]
-# }
-#
-# with open("../config.json", "r") as config_file:
-#     config = json.load(config_file)
-# GitHubPRCreator(config["github_token"], config["owner"], config["repo"], config["base_branch"], f"test-{random.randint(1, 100)}",
-#                 json_data).create_pr_with_changes()

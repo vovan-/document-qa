@@ -69,7 +69,6 @@ def fix_code_action(initial_messages, initial_response):
 ## TODO switch to session state
     user_input_key = f"fix_code_action-{random.randint(1, 100)}"
     suggested_changes = dict(json.loads(initial_response))
-    print(suggested_changes)
     pr_url = GitHubPRCreator(config["github_token"], config["owner"], config["repo"], config["base_branch"], user_input_key, suggested_changes).create_pr_with_changes()
     st.write(f"Draft PR link: {pr_url}")
     # Ask the user if he approves the modification
