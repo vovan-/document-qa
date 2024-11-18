@@ -1,13 +1,15 @@
 import streamlit as st
 from openai import OpenAI
-import openai
 import json
 import random
 import time
 from utils.fix_json import fix_json
 from utils.get_assets import get_assets
 from utils.file_utils import read_file
+from utils.git_utils import GitHubPRCreator
 
+with open("config.json", "r") as config_file:
+    config = json.load(config_file)
 # Function to get the initial prompt for classifying the error
 def get_classify_error_prompt():
     return read_file('prompts/classify_error_prompt.txt')
@@ -65,11 +67,14 @@ def rise_incident_action(initial_messages, initial_response):
 def fix_code_action(initial_messages, initial_response):
 ### TODO 4: Uladzimir: action for the user interaction when LLM provided git diff, we should request user review and approval or rejection
 ## TODO switch to session state
+    user_input_key = f"fix_code_action-{random.randint(1, 100)}"
+    suggested_changes = dict(json.loads(initial_response))
+    pr_url = GitHubPRCreator(config["github_token"], config["owner"], config["repo"], config["base_branch"], user_input_key, suggested_changes).create_pr_with_changes()
+    st.write(f"Draft PR link: {pr_url}")
     # Ask the user if he approves the modification
-    user_input_key=f"fix_code_action-{random.randint(1,100)}"
     user_answer = any
     user_answer = st.text_input(
-        "Please review the changes proposed to fix the issues. Do you approve this Yes/No?",
+        f"Please review the changes proposed to fix the issues (follow the above link). Do you approve this Yes/No?",
         key=user_input_key)
     while not user_answer:
         time.sleep(2.5)
@@ -93,6 +98,10 @@ def fix_code_action(initial_messages, initial_response):
     
     st.write("DEBUG: exited fix_code_action")
 
+
+# def create_pr_action(initial_messages, llm_response)
+
+
 ### TODO 3: Viacheslav: fix json parsing for git diff issues in LLM response
 
 ### TODO 5: Stanislau: find configuration parser code
@@ -110,7 +119,8 @@ def handle_llm_response(initial_messages, llm_response):
         action_handlers = {
             "request_additional_context": lambda: retrieve_additional_context_action(initial_messages, llm_response),
             "rise_an_incident": lambda: rise_incident_action(initial_messages, llm_response),
-            "fix_code": lambda: fix_code_action(initial_messages, llm_response)
+            "fix_code": lambda: fix_code_action(initial_messages, llm_response),
+            # "create_pr": lambda: create_pr_action(initial_messages, llm_response)
             # Add more actions here
         }
 
@@ -130,8 +140,8 @@ if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
 else:
     # Create an OpenAI client
-    #client = OpenAI(api_key=openai_api_key)
-    client = openai.AzureOpenAI(api_key=openai_api_key, api_version="2024-08-01-preview", azure_endpoint=st.secrets.aoai.endpoint_full)
+    client = OpenAI(api_key=openai_api_key)
+    # client = openai.AzureOpenAI(api_key=openai_api_key, api_version="2024-08-01-preview", azure_endpoint=st.secrets.aoai.endpoint_full)
     prompt = get_classify_error_prompt()
     error_contents = get_data_error_details()
 

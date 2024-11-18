@@ -29,28 +29,23 @@ Respond in the following format, before replying check that JSON is valid and fi
         "references": "related links to files, error details etc"
     }
 }
-### For the code issues only after you already requested and investigated additional context from user, you should only provide such answer when you have respective file contents in your context. Don't make it up, ask additional context:
-{
-    "issueLevel": "code_level_issue",
-    "suggestedAction": "fix_code",
-    "suggestedCodeChanges": [
-        {
-            "sourceFile": "/src/abc/MyErrorneousFile.scala",
-            "gitDiff": "HERE PLACE EXACT CHANGES THAT NEEDS TO BE MADE IN THE FILE ABOVE TO FIX THE PROBLEM, USE GIT DIFF FORMAT"
-        },
-    ]
-}
 ### For the issues where the current context is not sufficient to make a decision(We will provide all the source code and configuration in response to you.):
 {
     "issueLevel": "Spark_Job_or_ETL_script_issue", // or those levels: Application execution level issue / Data storage layout level issue
     "suggestedAction": "request_additional_context"
 }
 
-### For the issues where additional provided context is still not sufficient to make a decision or you cannot make it with a high confidence, commincate this to the end user(We will provide all the source code and configuration in response to you.):
+### For the code issues and ONLY AFTER YOU ALREADY REQUESTED AND ANALYZED ADDITIONAL CONTEXT from user, you should only provide such answer when you have respective file contents in your context. Don't make it up, ask additional context:
 {
-    "issueLevel": "Spark_Job_or_ETL_script_issue", // or those levels: Application execution level issue / Data storage layout level issue
-    "suggestedAction": "try_alternative_investigation_plan"
+    "issueLevel": "code_level_issue",
+    "suggestedAction": "fix_code",
+    "suggestedCodeChanges": [
+        {
+            "sourceFile": "/src/abc/MyErrorneousFile.scala",
+            "gitDiff": "HERE PLACE EXACT CHANGES THAT NEEDS TO BE MADE IN THE FILE ABOVE TO FIX THE PROBLEM, USE GIT DIFF FORMAT",
+            "sourceUpdate": "HERE PLEASE PLACE SUGGESTED FIXED VERSION OF THE FILE AS A STRING"
+        },
+    ]
 }
-
 
 Analyze the following error:
