@@ -1,0 +1,1 @@
+Replace 'created_at' with 'dp_create_timestamp' in the Spark SQL query
