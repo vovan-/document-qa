@@ -1,7 +1,7 @@
 select
   id,
   name,
-  create_at,
+  dp_create_timestamp as created_at,
   picture_url,
   owners,
   users,
